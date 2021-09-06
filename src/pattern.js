@@ -1,7 +1,16 @@
-import { createCanvas } from 'canvas' // this is a simple shim in browsers
+// import { createCanvas } from 'canvas' // this is a simple shim in browsers
 import getScalingRatio from './utils/getScalingRatio'
 const isBrowser = (typeof window !== 'undefined' && typeof document !== 'undefined')
 const doc = isBrowser && document
+const createCanvas = (w,h) => {
+  if (isBrowser) {
+    const c = document.createElement('canvas');
+    c.setAttribute('width', `${w}px`);
+    c.setAttribute('height', `${h}px`);
+    return c;
+  }
+  return new Object();
+}
 
 // utility for building up SVG node trees with the DOM API
 const sDOM = (tagName, attrs = {}, children, existingRoot) => {
@@ -87,18 +96,30 @@ export default class Pattern {
     ? (destSVG, svgOpts) => this._toSVG(sDOM, destSVG, svgOpts)
     : (destSVG, svgOpts) => this.toSVGTree(svgOpts)
 
+  defaultCanvasOptions = {
+    scaling: isBrowser ? 'auto' : false,
+    applyCssScaling: !!isBrowser
+  }
+
   toCanvas = (destCanvas, _canvasOpts = {}) => {
-    const defaultCanvasOptions = {
-      scaling: isBrowser ? 'auto' : false,
-      applyCssScaling: !!isBrowser
-    }
-    const canvasOpts = { ...defaultCanvasOptions, ..._canvasOpts }
+    const canvasOpts = { ...this.defaultCanvasOptions, ..._canvasOpts }
     const { points, polys, opts } = this
 
     const canvas = destCanvas || createCanvas(opts.width, opts.height) // doc.createElement('canvas')
     const ctx = canvas.getContext('2d')
+    
+    scaleCanvas(canvas, canvasOpts)
+    toCanvasCtx(ctx, canvasOpts)
 
+    return canvas
+  }
+  
+  scaleCanvas = (canvas, _canvasOpts={}) => {
+    console.log("scalecanvas");
+    const canvasOpts = { ...this.defaultCanvasOptions, ..._canvasOpts }
+    
     if (canvasOpts.scaling) {
+      const ctx = canvas.getContext('2d')
       const drawRatio = canvasOpts.scaling === 'auto'
         ? getScalingRatio(ctx)
         : canvasOpts.scaling
@@ -123,7 +144,12 @@ export default class Pattern {
         }
       }
       ctx.scale(drawRatio, drawRatio)
-    }
+    }    
+  }
+        
+  toCanvasCtx = (ctx, _canvasOpts={}) => {
+    const canvasOpts = { ...this.defaultCanvasOptions, ..._canvasOpts }
+    const { points, polys, opts } = this
 
     const drawPoly = (poly, fill, stroke) => {
       const vertexIndices = poly.vertexIndices
@@ -156,7 +182,7 @@ export default class Pattern {
       opts.fill && { color: poly.color },
       (opts.strokeWidth > 0) && { color: poly.color, width: opts.strokeWidth }
     ))
-
-    return canvas
+    
+    return ctx
   }
 }

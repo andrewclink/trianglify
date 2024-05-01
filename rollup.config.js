@@ -10,19 +10,19 @@ export default [
     input: 'src/trianglify.js',
     external: ['chroma-js', 'delaunator', 'canvas'],
     plugins: [babel({ babelHelpers: 'bundled' }), bundleSize()],
-    output: { file: pkg.main, format: 'cjs' }
+    output: { file: pkg.main, format: 'esm', exports: 'auto' }
   },
-  {
-    // build minified bundle to be used standalone for browser use
-    // note: // chroma.js weighs 40k minified, a smaller solution would be nice
-    input: 'src/trianglify.js',
-    plugins: [terser({ output: { comments: false } }), resolve({ browser: true }), commonjs(), babel({ babelHelpers: 'bundled' }), bundleSize()],
-    output: { file: 'dist/trianglify.bundle.js', format: 'umd', name: 'trianglify' }
-  },
-  {
-    // build non-minified bundle to be used for debugging
-    input: 'src/trianglify.js',
-    plugins: [resolve({ browser: true }), commonjs(), babel({ babelHelpers: 'bundled' }), bundleSize()],
-    output: { file: 'dist/trianglify.bundle.debug.js', format: 'umd', name: 'trianglify' }
-  }
+  // {
+  //   // build minified bundle to be used standalone for browser use
+  //   // note: // chroma.js weighs 40k minified, a smaller solution would be nice
+  //   input: 'src/trianglify.js',
+  //   plugins: [terser({ output: { comments: false } }), resolve({ browser: true }), commonjs(), babel({ babelHelpers: 'bundled' }), bundleSize()],
+  //   output: { file: 'dist/trianglify.bundle.js', exports: 'auto', format: 'esm', name: 'trianglify' }
+  // },
+  // {
+  //   // build non-minified bundle to be used for debugging
+  //   input: 'src/trianglify.js',
+  //   plugins: [resolve({ browser: true }), commonjs(), babel({ babelHelpers: 'bundled' }), bundleSize()],
+  //   output: { file: 'dist/trianglify.bundle.debug.js', exports: 'auto', format: 'esm', name: 'trianglify' }
+  // }
 ]

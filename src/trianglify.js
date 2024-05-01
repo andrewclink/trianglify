@@ -94,6 +94,8 @@ export default function trianglify (_opts = {}) {
   const points = opts.points || getPoints(opts, rand)
 
   // Once we have the points array, run the triangulation
+  console.debug("Delaunator", Delaunator);
+  let d = Delaunator;
   var geomIndices = Delaunator.from(points).triangles
   // ...and then generate geometry and color data:
 
